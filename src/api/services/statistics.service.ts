@@ -12,26 +12,7 @@ export class StatisticsService {
   ) {}
 
   async getStatistics(): Promise<StatisticsResponseDto> {
-    // Get basic counts
-    const totalCases = await this.caseRepository.count();
-    const enrichedCases = await this.caseRepository
-      .createQueryBuilder('case')
-      .innerJoin('case.content', 'content')
-      .getCount();
-
-    const pendingCases = totalCases - enrichedCases;
-
-    // Get date statistics
-    const dateStats = await this.caseRepository
-      .createQueryBuilder('case')
-      .select([
-        'MIN(case.decisionDate) as "oldestCaseDate"',
-        'MAX(case.decisionDate) as "latestCaseDate"',
-      ])
-      .where('case.decisionDate IS NOT NULL')
-      .getRawOne();
-
-    // Get recent additions
+    // Get ALL statistics in a single optimized query!
     const now = new Date();
     const todayStart = new Date(
       now.getFullYear(),
@@ -41,30 +22,34 @@ export class StatisticsService {
     const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
-    const casesAddedToday = await this.caseRepository
+    const stats = await this.caseRepository
       .createQueryBuilder('case')
-      .where('case.createdAt >= :todayStart', { todayStart })
-      .getCount();
+      .leftJoin('case.content', 'content')
+      .select([
+        'COUNT(case.id) as "totalCases"',
+        'COUNT(content.id) as "enrichedCases"',
+        'MIN(case.decisionDate) as "oldestCaseDate"',
+        'MAX(case.decisionDate) as "latestCaseDate"',
+        `SUM(CASE WHEN case.createdAt >= '${todayStart.toISOString()}' THEN 1 ELSE 0 END) as "casesAddedToday"`,
+        `SUM(CASE WHEN case.createdAt >= '${weekStart.toISOString()}' THEN 1 ELSE 0 END) as "casesAddedThisWeek"`,
+        `SUM(CASE WHEN case.createdAt >= '${monthStart.toISOString()}' THEN 1 ELSE 0 END) as "casesAddedThisMonth"`,
+      ])
+      .where('case.decisionDate IS NOT NULL OR case.decisionDate IS NULL')
+      .getRawOne();
 
-    const casesAddedThisWeek = await this.caseRepository
-      .createQueryBuilder('case')
-      .where('case.createdAt >= :weekStart', { weekStart })
-      .getCount();
-
-    const casesAddedThisMonth = await this.caseRepository
-      .createQueryBuilder('case')
-      .where('case.createdAt >= :monthStart', { monthStart })
-      .getCount();
+    const totalCases = parseInt(stats.totalCases) || 0;
+    const enrichedCases = parseInt(stats.enrichedCases) || 0;
+    const pendingCases = totalCases - enrichedCases;
 
     return {
       totalCases,
       enrichedCases,
       pendingCases,
-      latestCaseDate: dateStats?.latestCaseDate,
-      oldestCaseDate: dateStats?.oldestCaseDate,
-      casesAddedToday,
-      casesAddedThisWeek,
-      casesAddedThisMonth,
+      latestCaseDate: stats.latestCaseDate,
+      oldestCaseDate: stats.oldestCaseDate,
+      casesAddedToday: parseInt(stats.casesAddedToday) || 0,
+      casesAddedThisWeek: parseInt(stats.casesAddedThisWeek) || 0,
+      casesAddedThisMonth: parseInt(stats.casesAddedThisMonth) || 0,
     };
   }
 }

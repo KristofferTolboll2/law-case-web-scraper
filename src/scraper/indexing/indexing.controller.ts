@@ -11,11 +11,6 @@ export class IndexingController {
     return this.indexingService.indexCases(batches, caseLimit);
   }
 
-  @Get('stats')
-  async getStats() {
-    return this.indexingService.getCaseStats();
-  }
-
   @Get('status')
   async getIndexingStatus() {
     return this.indexingService.getIndexingStatus();

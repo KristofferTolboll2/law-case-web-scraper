@@ -18,8 +18,6 @@ export class CaseContentParserService {
   parseContent(html: string): ParsedCaseContent {
     const $ = cheerio.load(html);
 
-    this.logger.debug('Starting case content parsing');
-
     return {
       paragraphs: this.extractParagraphs($),
       links: this.extractLinks($),
