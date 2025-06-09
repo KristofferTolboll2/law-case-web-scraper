@@ -12,6 +12,10 @@ A high-performance web scraping system for legal case databases. Currently optim
 
 ### Future: Producer/Consumer Pattern
 
+To improve performance and scalability, I would for the future plan to **separate the indexer and enricher** into distinct modules, then eventually into separate services, following a producer/consumer pattern.
+
+This would allow for independent scaling of the indexer and enricher, and would allow for the use of message queues to handle the flow of cases and content.
+
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Producers     │    │   Message       │    │   Consumers     │
@@ -25,13 +29,17 @@ A high-performance web scraping system for legal case databases. Currently optim
 └─────────────────┘
 ```
 
-**Benefits**: Horizontal scaling, fault tolerance, multi-source support
+**Scaling Strategy:**
+
+1. **Phase 1**: Split into separate modules within the same service
+2. **Phase 2**: Deploy as independent microservices with message queues
+3. **Benefits**: Independent scaling, fault isolation, resource optimization
 
 ## 🔧 Technology Stack
 
 - **Backend**: NestJS, TypeScript
 - **Database**: PostgreSQL with TypeORM
-- **Scraping**: Puppeteer with zero artificial delays
+- **Scraping**: Puppeteer and Cheerio
 - **Containerization**: Docker & Docker Compose
 
 ## 📦 Setup
@@ -108,7 +116,7 @@ npm run migration:revert    # Rollback last migration
 - **UPSERT database operations** (automatic duplicate handling)
 - **Optimized page loading** (`domcontentloaded` vs `networkidle0`)
 - **Single optimized query** for statistics (6 queries → 1)
-- **3.3x faster** than original implementation
+- **Performance increased many times** through optimization techniques
 
 ## 🛠️ Development
 
