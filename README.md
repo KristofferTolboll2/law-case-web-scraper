@@ -62,7 +62,7 @@ npm run migration:run  # Run database migrations
 npm run start:dev
 ```
 
-> **Note**: While a full Docker setup is available (`docker-compose up -d`), we recommend running only the database in Docker and the service locally with npm. This avoids complex Puppeteer configurations required for Docker containers and allows us to focus on core functionality.
+> **Note**: While a full Docker setup is available (`docker-compose up -d`), we decided on only hosting the database in Docker and running the service with regular `npm run start:dev`. This is because there were some further configurations that would be needed to get Puppeteer running properly in Docker (such as installing additional dependencies, configuring headless browser settings, handling sandbox restrictions, and managing Chrome binary paths), so we decided to focus more on the functionality rather than solving Docker containerization complexities for web scraping.
 
 ### Alternative: Full Docker Setup
 
