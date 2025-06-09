@@ -44,18 +44,37 @@ This would allow for independent scaling of the indexer and enricher, and would 
 
 ## 📦 Setup
 
-### Docker (Recommended)
+### Hybrid Approach (Recommended)
+
+**Database**: Runs in Docker container for easy setup
+**Application**: Runs locally with npm for better Puppeteer compatibility
 
 ```bash
 git clone https://github.com/KristofferTolboll2/law-case-web-scraper.git
 cd case-law-web-scraper
+
+# Start PostgreSQL database in Docker
+docker-compose up -d postgres
+
+# Setup and run application locally
+npm install
+npm run migration:run  # Run database migrations
+npm run start:dev
+```
+
+> **Note**: While a full Docker setup is available (`docker-compose up -d`), we recommend running only the database in Docker and the service locally with npm. This avoids complex Puppeteer configurations required for Docker containers and allows us to focus on core functionality.
+
+### Alternative: Full Docker Setup
+
+```bash
+# Full containerized setup (may require additional Puppeteer configuration)
 docker-compose up -d
 ```
 
-### Local Development
+### Manual Database Setup
 
 ```bash
-# Start PostgreSQL
+# If you prefer running PostgreSQL locally
 docker run -d --name case-law-postgres \
   -e POSTGRES_DB=caselaw \
   -e POSTGRES_USER=postgres \
