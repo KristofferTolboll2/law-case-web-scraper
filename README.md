@@ -2,7 +2,7 @@
 
 A high-performance web scraping system for legal case databases. Currently optimized for Danish case law from MFKN (Miljø- og Fødevareklagenævnet).
 
-## Architecture
+## 🏗️ Architecture
 
 ### Current: Monolithic Approach
 
@@ -35,14 +35,14 @@ This would allow for independent scaling of the indexer and enricher, and would 
 2. **Phase 2**: Deploy as independent microservices with message queues
 3. **Benefits**: Independent scaling, fault isolation, resource optimization
 
-## Technology Stack
+## 🔧 Technology Stack
 
 - **Backend**: NestJS, TypeScript
 - **Database**: PostgreSQL with TypeORM
 - **Scraping**: Puppeteer and Cheerio
 - **Containerization**: Docker & Docker Compose
 
-## Setup
+## 📦 Setup
 
 ### Hybrid Approach (Recommended)
 
@@ -87,7 +87,7 @@ npm run migration:run  # Run database migrations
 npm start
 ```
 
-## API Usage
+## 🚀 API Usage
 
 ### Start Indexing
 
@@ -110,7 +110,7 @@ curl http://localhost:3000/api/statistics
 curl http://localhost:3000/indexing/status
 ```
 
-## Database
+## 🗄️ Database
 
 PostgreSQL with TypeORM for cases and case content storage. Run migrations with:
 
@@ -120,7 +120,7 @@ npm run migration:generate  # Create new migrations
 npm run migration:revert    # Rollback last migration
 ```
 
-## Performance
+## 📊 Performance
 
 | Operation  | Time  | Cases    |
 | ---------- | ----- | -------- |
@@ -137,7 +137,7 @@ npm run migration:revert    # Rollback last migration
 - **Single optimized query** for statistics (6 queries → 1)
 - **Performance increased many times** through optimization techniques
 
-## Development
+## 🛠️ Development
 
 ```bash
 # Development
@@ -153,4 +153,4 @@ npm run test
 npm run test:e2e
 ```
 
-**Built for scalable legal data extraction**
+**Built for scalable legal data extraction** 🏛️⚖️
