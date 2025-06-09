@@ -1,73 +1,129 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Case Law Web Scraper
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A high-performance web scraping system for legal case databases. Currently optimized for Danish case law from MFKN (Miljø- og Fødevareklagenævnet).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🏗️ Architecture
 
-## Description
+### Current: Monolithic Approach
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Atomic Operations**: Indexing and enrichment in single process
+- **Fast Development**: Simplified deployment and debugging
+- **Performance**: ~1.8-3.3 seconds for 10 cases
 
-## Installation
+### Future: Producer/Consumer Pattern
 
-```bash
-$ npm install
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Producers     │    │   Message       │    │   Consumers     │
+│   (Indexers)    │───▶│   Queue         │───▶│   (Enrichers)   │
+│                 │    │   (Redis/RMQ)   │    │                 │
+│ ┌─────────────┐ │    │ ┌─────────────┐ │    │ ┌─────────────┐ │
+│ │Source A     │ │    │ │   Cases     │ │    │ │Content      │ │
+│ │Source B     │ │    │ │   Queue     │ │    │ │Enricher     │ │
+│ │Source C     │ │    │ └─────────────┘ │    │ └─────────────┘ │
+│ └─────────────┘ │    └─────────────────┘    └─────────────────┘
+└─────────────────┘
 ```
 
-## Running the app
+**Benefits**: Horizontal scaling, fault tolerance, multi-source support
+
+## 🔧 Technology Stack
+
+- **Backend**: NestJS, TypeScript
+- **Database**: PostgreSQL with TypeORM
+- **Scraping**: Puppeteer with zero artificial delays
+- **Containerization**: Docker & Docker Compose
+
+## 📦 Setup
+
+### Docker (Recommended)
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone https://github.com/KristofferTolboll2/law-case-web-scraper.git
+cd case-law-web-scraper
+docker-compose up -d
 ```
 
-## Test
+### Local Development
 
 ```bash
-# unit tests
-$ npm run test
+# Start PostgreSQL
+docker run -d --name case-law-postgres \
+  -e POSTGRES_DB=caselaw \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 postgres:15
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+# Setup application
+npm install
+npm run migration:run  # Run database migrations
+npm start
 ```
 
-## Support
+## 🚀 API Usage
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### Start Indexing
 
-## Stay in touch
+```bash
+# Index 1 batch (10 cases)
+curl -X POST http://localhost:3000/indexing/start \
+  -H "Content-Type: application/json" \
+  -d '{"batches": 1}'
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Get Statistics
 
-## License
+```bash
+curl http://localhost:3000/api/statistics
+```
 
-Nest is [MIT licensed](LICENSE).
+### Monitor Status
+
+```bash
+curl http://localhost:3000/indexing/status
+```
+
+## 🗄️ Database
+
+PostgreSQL with TypeORM for cases and case content storage. Run migrations with:
+
+```bash
+npm run migration:run       # Run pending migrations
+npm run migration:generate  # Create new migrations
+npm run migration:revert    # Rollback last migration
+```
+
+## 📊 Performance
+
+| Operation  | Time  | Cases    |
+| ---------- | ----- | -------- |
+| New cases  | ~1.8s | 10 cases |
+| Duplicates | ~3.3s | 10 cases |
+| 3 batches  | ~5-8s | 30 cases |
+
+**Performance Improvements:**
+
+- **Removed all artificial delays** (200ms + 2000ms waits eliminated)
+- **Full parallel processing** (all cases process simultaneously)
+- **UPSERT database operations** (automatic duplicate handling)
+- **Optimized page loading** (`domcontentloaded` vs `networkidle0`)
+- **Single optimized query** for statistics (6 queries → 1)
+- **3.3x faster** than original implementation
+
+## 🛠️ Development
+
+```bash
+# Development
+npm run start:dev
+npm run build
+
+# Database
+npm run migration:generate
+npm run migration:run
+
+# Testing
+npm run test
+npm run test:e2e
+```
+
+**Built for scalable legal data extraction** 🏛️⚖️
