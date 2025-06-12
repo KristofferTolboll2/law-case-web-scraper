@@ -2,12 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, SelectQueryBuilder } from 'typeorm';
 import { Case } from '../../database/entities/case.entity';
-import { CaseQueryDto } from '../dto/case-query.dto';
 import {
+  CaseQueryInput,
   PaginatedCasesResponseDto,
   PaginationMetaDto,
   CaseResponseDto,
-} from '../dto/case-response.dto';
+} from '../dto/case.dto';
 
 @Injectable()
 export class CasesService {
@@ -16,7 +16,7 @@ export class CasesService {
     private caseRepository: Repository<Case>,
   ) {}
 
-  async findAll(queryDto: CaseQueryDto): Promise<PaginatedCasesResponseDto> {
+  async findAll(queryDto: CaseQueryInput): Promise<PaginatedCasesResponseDto> {
     const {
       page = 1,
       limit = 20,
@@ -48,6 +48,7 @@ export class CasesService {
 
     const [cases, total] = await queryBuilder.getManyAndCount();
 
+    console.log(total, cases.length);
     const totalPages = Math.ceil(total / limit);
     const meta: PaginationMetaDto = {
       page,
@@ -129,7 +130,9 @@ export class CasesService {
       mfknId: caseEntity.mfknId,
       title: caseEntity.title,
       caseNumber: caseEntity.caseNumber,
-      decisionDate: caseEntity.decisionDate,
+      decisionDate: caseEntity.decisionDate
+        ? new Date(caseEntity.decisionDate)
+        : null,
       sourceUrl: caseEntity.sourceUrl,
       createdAt: caseEntity.createdAt,
       updatedAt: caseEntity.updatedAt,

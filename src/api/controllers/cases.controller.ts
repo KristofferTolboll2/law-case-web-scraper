@@ -1,10 +1,10 @@
 import { Controller, Get, Param, Query, ValidationPipe } from '@nestjs/common';
 import { CasesService } from '../services/cases.service';
-import { CaseQueryDto } from '../dto/case-query.dto';
 import {
+  CaseQueryInput,
   PaginatedCasesResponseDto,
   CaseResponseDto,
-} from '../dto/case-response.dto';
+} from '../dto/case.dto';
 
 @Controller('api/cases')
 export class CasesController {
@@ -13,7 +13,7 @@ export class CasesController {
   @Get()
   async findAll(
     @Query(new ValidationPipe({ transform: true, whitelist: true }))
-    queryDto: CaseQueryDto,
+    queryDto: CaseQueryInput,
   ): Promise<PaginatedCasesResponseDto> {
     return this.casesService.findAll(queryDto);
   }

@@ -31,7 +31,6 @@ export class CaseContentParserService {
   private extractParagraphs($: cheerio.CheerioAPI): string[] {
     const paragraphs: string[] = [];
 
-    // Look for main content area paragraphs
     $('p, .content p, [class*="paragraph"], [class*="text-content"] p').each(
       (_, element) => {
         const text = $(element).text().trim();
@@ -80,7 +79,7 @@ export class CaseContentParserService {
   }
 
   private extractCourt($: cheerio.CheerioAPI): string | undefined {
-    // Look for court information - focusing on the most common MFKN pattern
+    // Focus on the most common MFKN pattern
     const courtElement = $('span:contains("nævn")').first();
     if (courtElement.length > 0) {
       const court = courtElement.text().trim();
@@ -104,7 +103,6 @@ export class CaseContentParserService {
   private extractParties($: cheerio.CheerioAPI): string[] {
     const parties: string[] = [];
 
-    // Look for parties in various formats
     const partySelectors = [
       '[class*="party"]',
       '[class*="plaintiff"]',
@@ -139,7 +137,6 @@ export class CaseContentParserService {
   private extractKeywords($: cheerio.CheerioAPI): string[] {
     const keywords: string[] = [];
 
-    // Look for keywords/tags
     const keywordSelectors = [
       '[class*="keyword"]',
       '[class*="tag"]',
@@ -174,7 +171,6 @@ export class CaseContentParserService {
       });
     }
 
-    // Extract potential keywords from headings
     $('h1, h2, h3, h4, h5, h6').each((_, element) => {
       const heading = $(element).text().trim();
       if (heading && heading.length > 5 && heading.length < 100) {
@@ -189,7 +185,6 @@ export class CaseContentParserService {
     // Remove script and style elements
     $('script, style, nav, header, footer, .navigation, .menu').remove();
 
-    // Get main content area
     const mainContent = $(
       'main, .main-content, .content, .case-content, body',
     ).first();

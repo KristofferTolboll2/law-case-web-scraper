@@ -1,0 +1,65 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CaseContentDto {
+  paragraphs: [String!]!
+  links: [CaseLinkDto!]!
+  court: String
+  parties: [String!]!
+  keywords: [String!]!
+  fullText: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+scalar DateTime
+
+type CaseLinkDto {
+  text: String!
+  url: String!
+  type: String
+}
+
+type CaseResponseDto {
+  id: ID!
+  mfknId: String!
+  title: String!
+  caseNumber: String
+  decisionDate: DateTime
+  sourceUrl: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  content: CaseContentDto
+}
+
+type PaginationMetaDto {
+  page: Int!
+  limit: Int!
+  total: Int!
+  totalPages: Int!
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type PaginatedCasesResponseDto {
+  data: [CaseResponseDto!]!
+  meta: PaginationMetaDto!
+}
+
+type Query {
+  cases(query: CaseQueryInput!): PaginatedCasesResponseDto!
+  caseById(id: ID!): CaseResponseDto!
+  caseByMfknId(mfknId: String!): CaseResponseDto!
+}
+
+input CaseQueryInput {
+  page: Int = 1
+  limit: Int = 20
+  search: String
+  caseNumber: String
+  fromDate: String
+  toDate: String
+  sortBy: String = "decisionDate"
+  sortOrder: String = "desc"
+}

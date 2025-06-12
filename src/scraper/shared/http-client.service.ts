@@ -29,7 +29,6 @@ export class HttpClientService {
 
       this.logger.log('Initializing Puppeteer browser...');
 
-      // Simplified working configuration
       const browserOptions = {
         headless: 'new' as const,
         timeout: 60000,
@@ -55,7 +54,6 @@ export class HttpClientService {
       this.browser = await puppeteer.launch(browserOptions);
       this.logger.log('✅ Browser launched successfully');
 
-      // Handle browser disconnects
       this.browser.on('disconnected', () => {
         this.logger.warn(
           'Browser disconnected, will reinitialize on next request',
@@ -120,7 +118,6 @@ export class HttpClientService {
 
     await this.waitForSearchResults(page);
 
-    // Get initial batch of content
     let content = await page.content();
     htmlBatches.push(content);
     this.logger.log(`Captured initial batch (1/${maxBatches})`);
@@ -159,7 +156,6 @@ export class HttpClientService {
 
   private async clickSeFlerButton(page: Page): Promise<boolean> {
     try {
-      // Wait for the specific MFKN "se flere" button
       await page.waitForSelector('#view-more', {
         visible: true,
         timeout: 5000,
@@ -178,7 +174,6 @@ export class HttpClientService {
         return false;
       }
 
-      // Click the button
       await page.click('#view-more');
       this.logger.log('Successfully clicked "se flere" button');
       return true;
@@ -211,7 +206,15 @@ export class HttpClientService {
       throw new Error(`HTTP ${response?.status()}: ${response?.statusText()}`);
     }
 
-    await page.waitForSelector('app-root', { timeout: 3000 });
+    // Optional wait for app-root - don't fail if it doesn't exist
+    try {
+      await page.waitForSelector('app-root', { timeout: 3000 });
+    } catch (error) {
+      // Continue anyway - some pages might not have app-root
+      this.logger.debug(
+        `app-root selector not found, continuing anyway: ${error.message}`,
+      );
+    }
 
     const content = await page.content();
     await page.close();

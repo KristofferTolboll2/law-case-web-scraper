@@ -157,7 +157,7 @@ export class IndexingService {
           }
 
           this.logger.error(
-            `❌ [${index + 1}/${cases.length}] Error processing case ${caseItem.id}: ${error.message}`,
+            ` [${index + 1}/${cases.length}] Error processing case ${caseItem.id}: ${error.message}`,
           );
           return {
             success: false,
@@ -190,7 +190,7 @@ export class IndexingService {
     }
 
     this.logger.log(
-      `🚀 Processing complete in ${processingTime}ms: ${indexed} inserted, ${skipped} skipped, ${failed} failed`,
+      ` Processing complete in ${processingTime}ms: ${indexed} inserted, ${skipped} skipped, ${failed} failed`,
     );
 
     return { indexed, skipped: skipped + failed };

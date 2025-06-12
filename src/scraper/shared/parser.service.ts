@@ -33,22 +33,18 @@ export class ParserService {
     $('a.full-link').each((_, element) => {
       const $element = $(element);
 
-      // Extract title from h2.ruling-box-title
       const title = $element
         .find('h2.ruling-box-title')
         .text()
         .trim()
         .replace(/^"|"$/g, '');
 
-      // Extract URL from href attribute
       const href = $element.attr('href') || '';
       const url = `https://mfkn.naevneneshus.dk${href}`;
       const id = this.extractCaseIdFromUrl(url);
 
-      // Extract case number from .meta-journalnummer nested spans
       const caseNumber = $element.find('.meta-journalnummer').text().trim();
 
-      // Extract date from .meta-datestamp
       const dateText = $element.find('.meta-datestamp').text().trim();
       const decisionDate = this.parseDate(dateText);
 
@@ -70,7 +66,6 @@ export class ParserService {
   parseCaseContent(html: string): ParsedCaseContent {
     const $ = cheerio.load(html);
 
-    // Extract paragraphs
     const paragraphs: string[] = [];
     $('p, .paragraph, .content-paragraph').each((_, element) => {
       const text = $(element).text().trim();
@@ -79,7 +74,6 @@ export class ParserService {
       }
     });
 
-    // Extract links
     const links: ParsedCaseContent['links'] = [];
     $('a[href]').each((_, element) => {
       const $link = $(element);
@@ -99,23 +93,19 @@ export class ParserService {
       }
     });
 
-    // Extract court information
     const courtElement = $('.court-name, .institution, [data-court]').first();
     const court = courtElement.length ? courtElement.text().trim() : undefined;
 
-    // Look for parties
     const partiesElements = $('.party, .parties, [data-parties]');
     const parties = partiesElements.length
       ? partiesElements.map((_, el) => $(el).text().trim()).get()
       : [];
 
-    // Extract keywords/tags
     const keywordElements = $('.keyword, .tag, .category, [data-keywords]');
     const keywords = keywordElements.length
       ? keywordElements.map((_, el) => $(el).text().trim()).get()
       : [];
 
-    // Generate full text for search
     const fullText = $('.case-content, .decision-content, .main-content, main')
       .text()
       .replace(/\s+/g, ' ')
